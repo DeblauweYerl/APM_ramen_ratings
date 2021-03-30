@@ -1,0 +1,1 @@
+{"py/object": "clientserver7.data.Som.Som", "getal1": 12, "getal2": 452, "som": null}
