@@ -1,6 +1,7 @@
 import csv
-from eindopdracht.models.Rating import Rating
+from APM_ramen_ratings.models.Rating import Rating
 import statistics
+
 
 
 class RatingRepository:
@@ -21,6 +22,11 @@ class RatingRepository:
         [brands.append(rt.brand) for rt in self.ratings if rt.brand not in brands]
         return brands
 
+    def get_countries(self):
+        countries = []
+        [countries.append(rt.country) for rt in self.ratings if rt.country not in countries]
+        return countries
+
     def get_filtered_ratings(self, filters):
         response = []
         if filters['brand'] != 'brand':
@@ -37,5 +43,6 @@ class RatingRepository:
 
 ratings = RatingRepository()
 print(ratings.get_brands())
+print(ratings.get_countries())
 print([rt.review_number for rt in ratings.get_filtered_ratings({'brand': 'Nissin', 'country': 'Japan', 'min_rating': 3.75})])
 print(ratings.get_mean_ratings_brand('Nissin'))
