@@ -3,7 +3,6 @@ from APM_ramen_ratings.models.Rating import Rating
 import statistics
 
 
-
 class RatingRepository:
     def __init__(self):
         self.ratings = self.read_ratings()
@@ -28,7 +27,7 @@ class RatingRepository:
         return countries
 
     def get_filtered_ratings(self, filters):
-        response = []
+        response = self.ratings
         if filters['brand'] != 'brand':
             response = [rt for rt in self.ratings if rt.brand == filters['brand']]
         if filters['country'] != 'country':
