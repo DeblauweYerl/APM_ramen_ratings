@@ -9,7 +9,7 @@ from tkinter.ttk import Combobox
 
 import jsonpickle
 
-from labo05.demo_networking.clientserver8.data.Som import Som
+from APM_ramen_ratings.data.Som import Som
 
 
 class Window(Frame):
