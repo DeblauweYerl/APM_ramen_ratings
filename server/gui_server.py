@@ -27,6 +27,8 @@ class ServerWindow(Frame):
         self.pack(fill=BOTH, expand=1)
 
         self.columnconfigure(2, weight=5)
+        self.rowconfigure(1, weight=3)
+        self.rowconfigure(3, weight=1)
 
         Label(self, text="Connected clients:").grid(row=0, column=0, columnspan=2)
         self.cl_scrollbar = Scrollbar(self, orient=VERTICAL)

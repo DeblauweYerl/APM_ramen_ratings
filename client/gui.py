@@ -43,14 +43,14 @@ class Window(Frame):
         self.tab1_select_country.grid(column=1, row=1, padx=15, pady=2)
         self.tab1_select_country.set(countries[0])
 
-        ttk.Label(tab1, text="min. rating").grid(column=2, row=1, padx=5, pady=2)
+        ttk.Label(tab1, text="min. rating:").grid(column=2, row=1, padx=5, pady=2)
         self.tab1_min_rating = Scale(tab1, from_=0, to=5, tickinterval=5, orient=HORIZONTAL, length=150)
         self.tab1_min_rating.grid(column=3, row=1, padx=15, pady=2)
 
         self.tab1_btn_apply_filters = Button(tab1, text="Apply filters", command=self.tab1_apply_filters)
         self.tab1_btn_apply_filters.grid(column=0, row=2, padx=15, pady=2)
 
-        # data visualisation*-
+        # data visualisation
 
         tab_control.pack(fill=BOTH, expand=1)
 

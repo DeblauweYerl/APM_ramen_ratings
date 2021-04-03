@@ -6,9 +6,9 @@ from APM_ramen_ratings.data import RatingRepository
 
 class ClientHandler(threading.Thread):
 
-    numbers_clienthandlers = 0
+    _repository = None
 
-    def __init__(self, socketclient, messages_queue):
+    def __init__(self, socketclient, messages_queue, repository):
         threading.Thread.__init__(self)
         # connectie with client
         self.socketclient = socketclient
@@ -17,14 +17,13 @@ class ClientHandler(threading.Thread):
         # id clienthandler
         self.id = f'CL_{threading.get_ident()}'
         self.in_out_clh = self.socketclient.makefile(mode='rw')
-        # data
-        self.repository = RatingRepository()
+        self.repository = repository
 
     def run(self):
 
         self.print_bericht_gui_server("Waiting for numbers...")
-
         command = self.in_out_clh.readline().rstrip('\n').split(" ")
+        print(command)
         while command[0] != "/stop":
             if command[0] == "/data":
                 if command[1] == "all":

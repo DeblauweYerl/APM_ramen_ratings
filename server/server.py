@@ -3,6 +3,7 @@ import socket
 import threading
 
 from APM_ramen_ratings.server.clienthandler import ClientHandler
+from APM_ramen_ratings.data.RatingRepository import RatingRepository
 
 class RamenServer(threading.Thread):
     def __init__(self, host, port, messages_queue):
@@ -12,6 +13,7 @@ class RamenServer(threading.Thread):
         self.host = host
         self.port = port
         self.messages_queue = messages_queue
+        self.repository = RatingRepository()
 
     @property
     def is_connected(self):
@@ -43,7 +45,7 @@ class RamenServer(threading.Thread):
                 # establish a connection
                 socket_to_client, addr = self.serversocket.accept()
                 self.print_bericht_gui_server(f"received connection from {addr}")
-                clh = ClientHandler(socket_to_client, self.messages_queue)
+                clh = ClientHandler(socket_to_client, self.messages_queue, self.repository)
                 clh.start()
                 self.print_bericht_gui_server(f"current thread count: {threading.active_count()}.")
 
