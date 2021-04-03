@@ -15,6 +15,7 @@ class Window(Frame):
         self.master = master
         self.ratings = RatingRepository()
         self.init_window()
+        self.server_connect()
 
     def init_window(self):
         self.master.title("Ramen ratings")

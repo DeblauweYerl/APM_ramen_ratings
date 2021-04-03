@@ -37,21 +37,20 @@ class RamenServer(threading.Thread):
         number_received_message = 0
         try:
             while True:
-                logging.debug("Server waiting for a new client")
+                logging.debug("server waiting for a new client")
                 self.print_bericht_gui_server("waiting for a new client...")
 
                 # establish a connection
                 socket_to_client, addr = self.serversocket.accept()
-                self.print_bericht_gui_server(f"Got a connection from {addr}")
+                self.print_bericht_gui_server(f"received connection from {addr}")
                 clh = ClientHandler(socket_to_client, self.messages_queue)
                 clh.start()
-                self.print_bericht_gui_server(f"Current Thread count: {threading.active_count()}.")
+                self.print_bericht_gui_server(f"current thread count: {threading.active_count()}.")
 
         except Exception as ex:
-            self.print_bericht_gui_server("Serversocket afgesloten")
+            self.print_bericht_gui_server("serversocket closed")
             logging.debug("Thread server ended")
 
 
     def print_bericht_gui_server(self, message):
         self.messages_queue.put(f"Server:> {message}")
-

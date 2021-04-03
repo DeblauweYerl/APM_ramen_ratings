@@ -15,9 +15,9 @@ class ClientHandler(threading.Thread):
         # message queue -> link to gui server
         self.messages_queue = messages_queue
         # id clienthandler
-        self.id = ClientHandler.numbers_clienthandlers
+        self.id = f'CL_{threading.get_ident()}'
         self.in_out_clh = self.socketclient.makefile(mode='rw')
-        ClientHandler.numbers_clienthandlers += 1
+        # data
         self.repository = RatingRepository()
 
     def run(self):
@@ -48,7 +48,7 @@ class ClientHandler(threading.Thread):
 
             command = self.in_out_clh.readline().rstrip('\n')
 
-        self.print_bericht_gui_server("Connection with client closed...")
+        self.print_bericht_gui_server(f"/disconnect {self.id}")
         self.socketclient.close()
 
     def print_bericht_gui_server(self, message):
