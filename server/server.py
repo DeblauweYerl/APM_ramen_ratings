@@ -6,7 +6,7 @@ from APM_ramen_ratings.server.clienthandler import ClientHandler
 from APM_ramen_ratings.data.RatingRepository import RatingRepository
 
 class RamenServer(threading.Thread):
-    def __init__(self, host, port, messages_queue):
+    def __init__(self, host, port, messages_queue, server_window):
         threading.Thread.__init__(self, name="Thread-Server", daemon=True)
         self.serversocket = None
         self.__is_connected = False
@@ -14,6 +14,7 @@ class RamenServer(threading.Thread):
         self.port = port
         self.messages_queue = messages_queue
         self.repository = RatingRepository()
+        self.server_window = server_window
 
     @property
     def is_connected(self):
@@ -45,7 +46,7 @@ class RamenServer(threading.Thread):
                 # establish a connection
                 socket_to_client, addr = self.serversocket.accept()
                 self.print_bericht_gui_server(f"received connection from {addr}")
-                clh = ClientHandler(socket_to_client, self.messages_queue, self.repository)
+                clh = ClientHandler(socket_to_client, self.messages_queue, self.repository, self.server_window)
                 clh.start()
                 self.print_bericht_gui_server(f"current thread count: {threading.active_count()}.")
 

@@ -5,6 +5,7 @@ from tkinter import messagebox
 import logging
 import socket
 import jsonpickle
+import json
 
 from APM_ramen_ratings.data.RatingRepository import RatingRepository
 
@@ -22,10 +23,12 @@ class Window(Frame):
 
         # configure tabs
         tab_control = ttk.Notebook(self.master)
+        tab_control.pack(fill=BOTH, expand=1)
         tab1 = ttk.Frame(tab_control)
         tab2 = ttk.Frame(tab_control)
         tab_control.add(tab1, text="all ratings")
         tab_control.add(tab2, text="brand popularity")
+
 
         # tab1: all ratings
         # filters
@@ -50,9 +53,7 @@ class Window(Frame):
         self.tab1_btn_apply_filters = Button(tab1, text="Apply filters", command=self.tab1_apply_filters)
         self.tab1_btn_apply_filters.grid(column=0, row=2, padx=15, pady=2)
 
-        # data visualisation
 
-        tab_control.pack(fill=BOTH, expand=1)
 
 
     def server_connect(self):
@@ -82,15 +83,23 @@ class Window(Frame):
 
 
     def tab1_apply_filters(self):
-        filters = {'brand': self.tab1_select_brand.get(),
-                   'country': self.tab1_select_country.get(),
-                   'min_rating': self.tab1_min_rating.get()}
-        command = "/data all " + str(filters).replace(" ", "")
+        command = {'command': 'data',
+                   'params': {
+                       'data': 'all',
+                       'filters': {
+                           'brand': self.tab1_select_brand.get(),
+                           'country': self.tab1_select_country.get(),
+                           'min_rating': self.tab1_min_rating.get()
+                       }
+                   }}
 
-        self.in_out_server.write(jsonpickle.encode(command) +"\n")
-        self.in_out_server.flush()
-        ratings = self.in_out_server.readline().rstrip('\n')
-        self.load_table(jsonpickle.decode(ratings))
+        try:
+            self.in_out_server.write(jsonpickle.encode(json.dumps(command)) +"\n")
+            self.in_out_server.flush()
+            ratings = self.in_out_server.readline().rstrip('\n')
+            self.load_table(jsonpickle.decode(ratings))
+        except Exception as ex:
+            print(ex)
 
     def load_table(self, data):
         pass

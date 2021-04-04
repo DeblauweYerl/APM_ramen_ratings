@@ -72,7 +72,7 @@ class ServerWindow(Frame):
         print(self.cl_lstclients.get(0, END))
 
     def __start_server(self):
-        self.server = RamenServer(socket.gethostname(), 9999, self.messages_queue)
+        self.server = RamenServer(socket.gethostname(), 9999, self.messages_queue, self)
         self.server.init_server()
         self.server.start()  # in thread plaatsen!
         logging.info("Server started")
