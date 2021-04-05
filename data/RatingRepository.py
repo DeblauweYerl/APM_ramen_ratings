@@ -1,6 +1,8 @@
 import csv
-from APM_ramen_ratings.models.Rating import Rating
 import statistics
+import json
+
+from APM_ramen_ratings.models.Rating import Rating
 
 
 class RatingRepository:
@@ -34,14 +36,15 @@ class RatingRepository:
             response = [rt for rt in response if rt.country == filters['country']]
         if filters['min_rating']:
             response = [rt for rt in response if float(rt.rating) >= filters['min_rating']]
+        response = [rt.__dict__ for rt in response]
         return response
 
     def get_mean_ratings_brand(self, brand):
         return round(statistics.mean([float(rt.rating) for rt in self.ratings if rt.brand == brand]),2)
 
 
-ratings = RatingRepository()
-print(ratings.get_brands())
-print(ratings.get_countries())
-print([rt.review_number for rt in ratings.get_filtered_ratings({'brand': 'Nissin', 'country': 'Japan', 'min_rating': 3.75})])
-print(ratings.get_mean_ratings_brand('Nissin'))
+# ratings = RatingRepository()
+# print(ratings.get_brands())
+# print(ratings.get_countries())
+# print([rt['review_number'] for rt in ratings.get_filtered_ratings({'brand': 'Nissin', 'country': 'Japan', 'min_rating': 3.75})])
+# print(ratings.get_mean_ratings_brand('Nissin'))

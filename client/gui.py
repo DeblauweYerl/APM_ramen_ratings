@@ -34,17 +34,11 @@ class Window(Frame):
         # filters
         # Label(tab1, text="filters").grid(column=0, row=0, padx=10, pady=2)
 
-        brands = self.ratings.get_brands()
-        brands.insert(0, 'brand')
-        self.tab1_select_brand = ttk.Combobox(tab1, values=brands)
+        self.tab1_select_brand = ttk.Combobox(tab1)
         self.tab1_select_brand.grid(column=0, row=1, padx=15, pady=2)
-        self.tab1_select_brand.set(brands[0])
 
-        countries = self.ratings.get_countries()
-        countries.insert(0, 'country')
-        self.tab1_select_country = ttk.Combobox(tab1, values=countries)
+        self.tab1_select_country = ttk.Combobox(tab1)
         self.tab1_select_country.grid(column=1, row=1, padx=15, pady=2)
-        self.tab1_select_country.set(countries[0])
 
         ttk.Label(tab1, text="min. rating:").grid(column=2, row=1, padx=5, pady=2)
         self.tab1_min_rating = Scale(tab1, from_=0, to=5, tickinterval=5, orient=HORIZONTAL, length=150)
@@ -67,7 +61,10 @@ class Window(Frame):
             self.s.connect((host, port))
             self.in_out_server = self.s.makefile(mode='rw')
             logging.info("Connection with server successful.")
-            self.tab1_apply_filters()
+
+            self.tab1_load_filter('brand', self.tab1_select_brand)
+            self.tab1_load_filter('country', self.tab1_select_country)
+            # self.tab1_apply_filters()
         except Exception as ex:
             logging.error(f"Error: {ex}")
             messagebox.showinfo("RamenRatings - error", "Cannot connect to server.")
@@ -81,6 +78,17 @@ class Window(Frame):
         except Exception as ex:
             logging.error("Foutmelding:close connection with server failed")
 
+    def tab1_load_filter(self, filter_name, obj):
+        command = {'command': 'data',
+                   'params': {
+                       'data': filter_name
+                   }}
+        self.in_out_server.write(json.dumps(command) + "\n")
+        self.in_out_server.flush()
+        filter_values = json.loads(self.in_out_server.readline().rstrip('\n'))
+        filter_values.insert(0, filter_name)
+        obj['values'] = filter_values
+        obj.set(filter_name)
 
     def tab1_apply_filters(self):
         command = {'command': 'data',
@@ -94,15 +102,15 @@ class Window(Frame):
                    }}
 
         try:
-            self.in_out_server.write(jsonpickle.encode(json.dumps(command)) +"\n")
+            self.in_out_server.write(json.dumps(command) + "\n")
             self.in_out_server.flush()
             ratings = self.in_out_server.readline().rstrip('\n')
-            self.load_table(jsonpickle.decode(ratings))
+            self.load_table(ratings)
         except Exception as ex:
             print(ex)
 
     def load_table(self, data):
-        pass
+        print(data)
 
 
 root = Tk()
