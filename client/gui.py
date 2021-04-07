@@ -21,7 +21,7 @@ class Window(Frame):
     def init_window(self):
         self.master.title("Ramen ratings")
 
-        self.pack(fill=BOTH, expand=1)
+        # self.pack(fill=BOTH, expand=1)
         # self.grid(sticky=N+S+E+W)
 
 
@@ -78,7 +78,7 @@ class Window(Frame):
         self.tab1_ratings.grid(row=3, columnspan=4, sticky=N+S+E+W)
 
 
-        self.pack(fill=BOTH, expand=1)
+        # self.pack(fill=BOTH, expand=1)
         tab_control.pack(fill=BOTH, expand=1)
 
 
