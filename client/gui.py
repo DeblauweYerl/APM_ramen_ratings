@@ -21,16 +21,25 @@ class Window(Frame):
     def init_window(self):
         self.master.title("Ramen ratings")
 
+        # self.pack(fill=BOTH, expand=1)
+        self.grid(sticky=N+S+E+W)
+
+
         # configure tabs
         tab_control = ttk.Notebook(self.master)
-        tab_control.pack(fill=BOTH, expand=1)
+
         tab1 = ttk.Frame(tab_control)
-        tab_control.grid(sticky=N+S+E+W)
-        tab1.grid(sticky=N+S+E+W)
-        self.tab1 = tab1
         tab2 = ttk.Frame(tab_control)
+
+        # tab_control.pack(fill=BOTH, expand=1)
+        tab_control.grid(sticky=N+S+E+W)
+        # tab1.pack(fill=BOTH, expand=1)
+        # tab1.grid(sticky=N+S+E+W)
+        self.tab1 = tab1
+
         tab_control.add(tab1, text="all ratings")
         tab_control.add(tab2, text="brand popularity")
+
 
 
         # tab1: all ratings
@@ -52,6 +61,9 @@ class Window(Frame):
 
         # data
         self.tab1_ratings = ttk.Treeview(tab1, columns=('country', 'variety', 'rating'))
+        self.tab1_ratings_scrollbar = Scrollbar(tab1, orient=VERTICAL)
+        self.tab1_ratings_scrollbar.config(command=self.tab1_ratings.yview)
+        self.tab1_ratings_scrollbar.grid(row=3, column=4, sticky=N+S)
 
         self.tab1_ratings.heading('#0', text='brand')
         self.tab1_ratings.heading('#1', text='country')
@@ -137,5 +149,4 @@ class Window(Frame):
 
 root = Tk()
 app = Window(root)
-# tab_control.pack(expand=1, fill="both")
 root.mainloop()
