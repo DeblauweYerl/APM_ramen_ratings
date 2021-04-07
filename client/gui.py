@@ -21,25 +21,21 @@ class Window(Frame):
     def init_window(self):
         self.master.title("Ramen ratings")
 
-        # self.pack(fill=BOTH, expand=1)
-        # self.grid(sticky=N+S+E+W)
-
+        self.pack(fill=BOTH, expand=1)
 
         # configure tabs
         tab_control = ttk.Notebook(self.master)
 
         tab1 = ttk.Frame(tab_control)
         tab2 = ttk.Frame(tab_control)
+        tab3 = ttk.Frame(tab_control)
 
-        # tab_control.pack(fill=BOTH, expand=1)
-        # tab_control.grid(sticky=N+S+E+W)
-        # tab1.pack(fill=BOTH, expand=1)
-        # tab1.grid(sticky=N+S+E+W)
-        self.tab1 = tab1
+        tab_control.pack(fill=BOTH, expand=1)
+        tab1.pack(fill=BOTH, expand=1)
 
         tab_control.add(tab1, text="all ratings")
         tab_control.add(tab2, text="brand popularity")
-
+        tab_control.add(tab3, text="kaka")
 
 
         # tab1: all ratings
@@ -78,8 +74,11 @@ class Window(Frame):
         self.tab1_ratings.grid(row=3, columnspan=4, sticky=N+S+E+W)
 
 
-        # self.pack(fill=BOTH, expand=1)
-        tab_control.pack(fill=BOTH, expand=1)
+        # tab2: brand popularity
+
+        self.tab2_select_brand = ttk.Combobox(tab2)
+        self.tab2_select_brand.grid(column=0, row=0, padx=5, pady=2, sticky=W)
+
 
 
 
@@ -95,9 +94,14 @@ class Window(Frame):
             self.in_out_server = self.s.makefile(mode='rw')
             logging.info("Connection with server successful.")
 
-            self.tab1_load_filter('brand', self.tab1_select_brand)
-            self.tab1_load_filter('country', self.tab1_select_country)
+            #tab1
+            self.load_filter('brand', self.tab1_select_brand)
+            self.load_filter('country', self.tab1_select_country)
             self.tab1_apply_filters()
+
+            #tab2
+
+
         except Exception as ex:
             logging.error(f"Error: {ex}")
             messagebox.showinfo("RamenRatings - error", "Cannot connect to server.")
@@ -111,7 +115,7 @@ class Window(Frame):
         except Exception as ex:
             logging.error("Foutmelding:close connection with server failed")
 
-    def tab1_load_filter(self, filter_name, obj):
+    def load_filter(self, filter_name, obj):
         command = {'command': 'data',
                    'params': {
                        'data': filter_name
