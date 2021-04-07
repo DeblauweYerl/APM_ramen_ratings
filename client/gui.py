@@ -4,7 +4,6 @@ from tkinter import messagebox
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-import numpy as np
 
 import logging
 import socket
@@ -32,6 +31,8 @@ class Window(Frame):
         tab1 = ttk.Frame(tab_control)
         tab2 = ttk.Frame(tab_control)
         tab3 = ttk.Frame(tab_control)
+
+        self.tab2 = tab2
 
         tab_control.pack(fill=BOTH, expand=1)
         tab1.pack(fill=BOTH, expand=1)
@@ -85,7 +86,7 @@ class Window(Frame):
         self.tab2_select_country = ttk.Combobox(tab2)
         self.tab2_select_country.grid(column=1, row=0, padx=15, pady=2, sticky=W)
 
-        self.tab2_btn_apply_filters = Button(tab2, text="Apply filters", command=self.tab2_apply_filters)
+        self.tab2_btn_apply_filters = Button(tab2, text="Apply filters", command=self.tab2_load_plot)
         self.tab2_btn_apply_filters.grid(column=0, row=1, padx=5, pady=2, sticky=W)
 
     def tab2_load_plot(self):
@@ -94,23 +95,22 @@ class Window(Frame):
                        'data': 'all',
                        'filters': {
                            'brand': self.tab2_select_brand.get(),
-                           'country': 'country',
+                           'country': self.tab2_select_country.get(),
                            'min_rating': 0
                        }
                    }}
         self.in_out_server.write(json.dumps(command) + "\n")
         self.in_out_server.flush()
-        filter_values = json.loads(self.in_out_server.readline().rstrip('\n'))
+        ratings = json.loads(self.in_out_server.readline().rstrip('\n'))
+        rating_scores = [rt['rating'] for rt in ratings]
 
-        self.fig = plt.figure(1)
-        plt.ion()
-        t = np.arange(0.0, 3.0, 0.01)
-        s = np.sin(np.pi * t)
-        plt.plot(t, s)
+        self.fig = plt.figure()
+        # plt.ion()
+        plt.hist(rating_scores)
 
-        canvas = FigureCanvasTkAgg(self.fig, self)
+        canvas = FigureCanvasTkAgg(self.fig, self.tab2)
         plot_widget = canvas.get_tk_widget()
-        plot_widget.grid(row=1, column=0, columnspan=2)
+        plot_widget.grid(row=2, column=0, columnspan=2)
 
     def server_connect(self):
         try:
@@ -131,6 +131,7 @@ class Window(Frame):
 
             # tab2
             self.load_filter('brand', self.tab2_select_brand)
+            self.load_filter('country', self.tab2_select_country)
 
         except Exception as ex:
             logging.error(f"Error: {ex}")
