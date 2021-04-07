@@ -4,6 +4,7 @@ from tkinter import messagebox
 
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import numpy as np
 
 import logging
 import socket
@@ -102,15 +103,17 @@ class Window(Frame):
         self.in_out_server.write(json.dumps(command) + "\n")
         self.in_out_server.flush()
         ratings = json.loads(self.in_out_server.readline().rstrip('\n'))
-        rating_scores = [rt['rating'] for rt in ratings]
+        rating_scores = sorted([rt['rating'] for rt in ratings])
 
-        self.fig = plt.figure()
-        # plt.ion()
+        fig = plt.figure(figsize=(7,3), facecolor='lightgrey', edgecolor='grey')
+
         plt.hist(rating_scores)
+        x_axis = [0,1,2,3,4,5]
+        plt.xticks(x_axis, x_axis)
 
-        canvas = FigureCanvasTkAgg(self.fig, self.tab2)
+        canvas = FigureCanvasTkAgg(fig, self.tab2)
         plot_widget = canvas.get_tk_widget()
-        plot_widget.grid(row=2, column=0, columnspan=2)
+        plot_widget.grid(row=2, column=0, columnspan=7, padx=5, pady=5)
 
     def server_connect(self):
         try:
