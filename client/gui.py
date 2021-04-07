@@ -2,6 +2,10 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
 
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import numpy as np
+
 import logging
 import socket
 import jsonpickle
@@ -20,7 +24,6 @@ class Window(Frame):
 
     def init_window(self):
         self.master.title("Ramen ratings")
-
         self.pack(fill=BOTH, expand=1)
 
         # configure tabs
@@ -34,14 +37,13 @@ class Window(Frame):
         tab1.pack(fill=BOTH, expand=1)
 
         tab_control.add(tab1, text="all ratings")
-        tab_control.add(tab2, text="brand popularity")
+        tab_control.add(tab2, text="popularity")
         tab_control.add(tab3, text="kaka")
 
 
         # tab1: all ratings
-        # filters
-        # Label(tab1, text="filters").grid(column=0, row=0, padx=10, pady=2)
 
+        # filters
         self.tab1_select_brand = ttk.Combobox(tab1)
         self.tab1_select_brand.grid(column=0, row=0, padx=5, pady=2, sticky=W)
 
@@ -57,9 +59,10 @@ class Window(Frame):
 
         # data
         self.tab1_ratings = ttk.Treeview(tab1, columns=('country', 'variety', 'rating'))
-        self.tab1_ratings_scrollbar = Scrollbar(tab1, orient=VERTICAL)
-        self.tab1_ratings_scrollbar.config(command=self.tab1_ratings.yview)
-        self.tab1_ratings_scrollbar.grid(row=3, column=4, sticky=N+S)
+        tab1_ratings_scrollbar = Scrollbar(tab1, orient=VERTICAL)
+        self.tab1_ratings.configure(yscrollcommand=tab1_ratings_scrollbar.set)
+        tab1_ratings_scrollbar.config(command=self.tab1_ratings.yview)
+        tab1_ratings_scrollbar.grid(row=3, column=4, sticky=N + S)
 
         self.tab1_ratings.heading('#0', text='brand')
         self.tab1_ratings.heading('#1', text='country')
@@ -71,7 +74,7 @@ class Window(Frame):
         self.tab1_ratings.column('#2', stretch=YES)
         self.tab1_ratings.column('#3', stretch=YES)
 
-        self.tab1_ratings.grid(row=3, columnspan=4, sticky=N+S+E+W)
+        self.tab1_ratings.grid(row=3, columnspan=4, sticky=N + S + E + W)
 
 
         # tab2: brand popularity
@@ -79,8 +82,35 @@ class Window(Frame):
         self.tab2_select_brand = ttk.Combobox(tab2)
         self.tab2_select_brand.grid(column=0, row=0, padx=5, pady=2, sticky=W)
 
+        self.tab2_select_country = ttk.Combobox(tab2)
+        self.tab2_select_country.grid(column=1, row=0, padx=15, pady=2, sticky=W)
 
+        self.tab2_btn_apply_filters = Button(tab2, text="Apply filters", command=self.tab2_apply_filters)
+        self.tab2_btn_apply_filters.grid(column=0, row=1, padx=5, pady=2, sticky=W)
 
+    def tab2_load_plot(self):
+        command = {'command': 'data',
+                   'params': {
+                       'data': 'all',
+                       'filters': {
+                           'brand': self.tab2_select_brand.get(),
+                           'country': 'country',
+                           'min_rating': 0
+                       }
+                   }}
+        self.in_out_server.write(json.dumps(command) + "\n")
+        self.in_out_server.flush()
+        filter_values = json.loads(self.in_out_server.readline().rstrip('\n'))
+
+        self.fig = plt.figure(1)
+        plt.ion()
+        t = np.arange(0.0, 3.0, 0.01)
+        s = np.sin(np.pi * t)
+        plt.plot(t, s)
+
+        canvas = FigureCanvasTkAgg(self.fig, self)
+        plot_widget = canvas.get_tk_widget()
+        plot_widget.grid(row=1, column=0, columnspan=2)
 
     def server_connect(self):
         try:
@@ -94,13 +124,13 @@ class Window(Frame):
             self.in_out_server = self.s.makefile(mode='rw')
             logging.info("Connection with server successful.")
 
-            #tab1
+            # tab1
             self.load_filter('brand', self.tab1_select_brand)
             self.load_filter('country', self.tab1_select_country)
             self.tab1_apply_filters()
 
-            #tab2
-
+            # tab2
+            self.load_filter('brand', self.tab2_select_brand)
 
         except Exception as ex:
             logging.error(f"Error: {ex}")
@@ -127,6 +157,7 @@ class Window(Frame):
         obj['values'] = filter_values
         obj.set(filter_name)
 
+
     def tab1_apply_filters(self):
         command = {'command': 'data',
                    'params': {
@@ -141,19 +172,16 @@ class Window(Frame):
             self.in_out_server.write(json.dumps(command) + "\n")
             self.in_out_server.flush()
             ratings = json.loads(self.in_out_server.readline().rstrip('\n'))
-            self.load_table(ratings)
+            self.tab1_load_table(ratings)
         except Exception as ex:
             print(ex)
 
-    def load_table(self, data):
+    def tab1_load_table(self, data):
         [self.tab1_ratings.delete(record) for record in self.tab1_ratings.get_children()]
         print(data)
-        for rating in data:
-            kaka1 = rating
-            kaka2 = rating['brand']
-            self.tab1_ratings.insert('', index='end', text=rating['brand'], values=(rating['country'], rating['variety'], rating['rating']))
-        # [self.tab1_ratings.insert('', values=(rt['brand'], rt['country'], rt['variety'], rt['rating'])) for rt in data]
-
+        # for rating in data:
+        [self.tab1_ratings.insert('', index='end', text=rating['brand'],
+                                  values=(rating['country'], rating['variety'], rating['rating'])) for rating in data]
 
 
 root = Tk()
