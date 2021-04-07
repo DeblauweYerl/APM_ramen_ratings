@@ -21,8 +21,8 @@ class Window(Frame):
     def init_window(self):
         self.master.title("Ramen ratings")
 
-        # self.pack(fill=BOTH, expand=1)
-        self.grid(sticky=N+S+E+W)
+        self.pack(fill=BOTH, expand=1)
+        # self.grid(sticky=N+S+E+W)
 
 
         # configure tabs
@@ -32,7 +32,7 @@ class Window(Frame):
         tab2 = ttk.Frame(tab_control)
 
         # tab_control.pack(fill=BOTH, expand=1)
-        tab_control.grid(sticky=N+S+E+W)
+        # tab_control.grid(sticky=N+S+E+W)
         # tab1.pack(fill=BOTH, expand=1)
         # tab1.grid(sticky=N+S+E+W)
         self.tab1 = tab1
@@ -76,6 +76,12 @@ class Window(Frame):
         self.tab1_ratings.column('#3', stretch=YES)
 
         self.tab1_ratings.grid(row=3, columnspan=4, sticky=N+S+E+W)
+
+
+        self.pack(fill=BOTH, expand=1)
+        tab_control.pack(fill=BOTH, expand=1)
+
+
 
     def server_connect(self):
         try:
@@ -127,7 +133,6 @@ class Window(Frame):
                            'min_rating': self.tab1_min_rating.get()
                        }
                    }}
-
         try:
             self.in_out_server.write(json.dumps(command) + "\n")
             self.in_out_server.flush()
