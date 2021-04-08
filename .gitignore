@@ -14,3 +14,4 @@ models/__pycache__/Rating.cpython-39.pyc
 server/__pycache__/clienthandler.cpython-39.pyc
 server/__pycache__/gui_server.cpython-39.pyc
 server/__pycache__/server.cpython-39.pyc
+server/__pycache__/clienthandler.cpython-39.pyc
