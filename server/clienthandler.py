@@ -40,6 +40,12 @@ class ClientHandler(threading.Thread):
                 elif command['params']['data'] == "country":
                     msg_out = self.repository.get_countries()
                     self.print_bericht_gui_server(f"sending all countries")
+
+                elif command['params']['data'] == "search":
+                    search = command['params']['search']
+                    msg_out = self.repository.search_ratings(search)
+                    self.print_bericht_gui_server(f"sending data from search action: '{search}'")
+
             msg_out = jsonpickle.encode(msg_out)
             self.in_out_clh.write(msg_out + "\n")
             self.in_out_clh.flush()
