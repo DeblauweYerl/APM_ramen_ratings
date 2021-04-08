@@ -31,15 +31,15 @@ class Window(Frame):
         tab1 = ttk.Frame(tab_control)
         tab2 = ttk.Frame(tab_control)
         tab3 = ttk.Frame(tab_control)
-
-        self.tab2 = tab2
+        tab4 = ttk.Frame(tab_control)
 
         tab_control.pack(fill=BOTH, expand=1)
         tab1.pack(fill=BOTH, expand=1)
 
         tab_control.add(tab1, text="all ratings")
-        tab_control.add(tab2, text="popularity")
-        tab_control.add(tab3, text="kaka")
+        tab_control.add(tab2, text="popularity graph")
+        tab_control.add(tab3, text="average")
+        tab_control.add(tab4, text="search ramen")
 
         # tab1: all ratings
 
@@ -112,7 +112,7 @@ class Window(Frame):
         x_axis = [0, 1, 2, 3, 4, 5]
         plt.xticks(x_axis, x_axis)
 
-        canvas = FigureCanvasTkAgg(fig, self.tab2)
+        canvas = FigureCanvasTkAgg(fig, tab2)
         plot_widget = canvas.get_tk_widget()
         plot_widget.grid(row=2, column=0, columnspan=7, padx=5, pady=5)
 
@@ -157,7 +157,7 @@ class Window(Frame):
                    }}
         self.in_out_server.write(json.dumps(command) + "\n")
         self.in_out_server.flush()
-        filter_values = json.loads(self.in_out_server.readline().rstrip('\n'))['response']
+        filter_values = jsonpickle.decode(self.in_out_server.readline().rstrip('\n'))
         filter_values.insert(0, filter_name)
         obj['values'] = filter_values
         obj.set(filter_name)
@@ -175,7 +175,7 @@ class Window(Frame):
         try:
             self.in_out_server.write(json.dumps(command) + "\n")
             self.in_out_server.flush()
-            ratings = json.loads(self.in_out_server.readline().rstrip('\n'))
+            ratings = jsonpickle.decode(self.in_out_server.readline().rstrip('\n'))
             self.tab1_load_table(ratings)
         except Exception as ex:
             print(ex)
