@@ -18,7 +18,6 @@ class Window(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.master = master
-        self.ratings = RatingRepository()
         self.init_window()
         self.server_connect()
 
@@ -42,7 +41,6 @@ class Window(Frame):
         tab_control.add(tab2, text="popularity")
         tab_control.add(tab3, text="kaka")
 
-
         # tab1: all ratings
 
         # filters
@@ -60,24 +58,27 @@ class Window(Frame):
         self.tab1_btn_apply_filters.grid(column=0, row=1, padx=5, pady=2, sticky=W)
 
         # data
-        self.tab1_ratings = ttk.Treeview(tab1, columns=('country', 'variety', 'rating'))
+        columns = ('brand', 'country', 'variety', 'rating')
+        self.tab1_ratings = ttk.Treeview(tab1, columns=columns, show='headings')
         tab1_ratings_scrollbar = Scrollbar(tab1, orient=VERTICAL)
         self.tab1_ratings.configure(yscrollcommand=tab1_ratings_scrollbar.set)
         tab1_ratings_scrollbar.config(command=self.tab1_ratings.yview)
         tab1_ratings_scrollbar.grid(row=3, column=4, sticky=N + S)
 
-        self.tab1_ratings.heading('#0', text='brand')
-        self.tab1_ratings.heading('#1', text='country')
-        self.tab1_ratings.heading('#2', text='variety')
-        self.tab1_ratings.heading('#3', text='rating')
+        # for col in columns:
+        #     self.tab1_ratings.heading(col, text=col, command=lambda: self.tab1_table_sort(self.tab1_ratings, col, False))
 
-        self.tab1_ratings.column('#0', stretch=YES)
+        self.tab1_ratings.heading('#1', text='brand')
+        self.tab1_ratings.heading('#2', text='country')
+        self.tab1_ratings.heading('#3', text='variety')
+        self.tab1_ratings.heading('#4', text='rating')
+
         self.tab1_ratings.column('#1', stretch=YES)
         self.tab1_ratings.column('#2', stretch=YES)
         self.tab1_ratings.column('#3', stretch=YES)
+        self.tab1_ratings.column('#4', stretch=YES)
 
         self.tab1_ratings.grid(row=3, columnspan=4, sticky=N + S + E + W)
-
 
         # tab2: brand popularity
 
@@ -103,12 +104,12 @@ class Window(Frame):
         self.in_out_server.write(json.dumps(command) + "\n")
         self.in_out_server.flush()
         ratings = json.loads(self.in_out_server.readline().rstrip('\n'))
-        rating_scores = sorted([rt['rating'] for rt in ratings])
+        rating_scores = sorted([rt[5] for rt in ratings])
 
-        fig = plt.figure(figsize=(7,3), facecolor='lightgrey', edgecolor='grey')
+        fig = plt.figure(figsize=(7, 3), facecolor='lightgrey', edgecolor='grey')
 
         plt.hist(rating_scores)
-        x_axis = [0,1,2,3,4,5]
+        x_axis = [0, 1, 2, 3, 4, 5]
         plt.xticks(x_axis, x_axis)
 
         canvas = FigureCanvasTkAgg(fig, self.tab2)
@@ -156,11 +157,10 @@ class Window(Frame):
                    }}
         self.in_out_server.write(json.dumps(command) + "\n")
         self.in_out_server.flush()
-        filter_values = json.loads(self.in_out_server.readline().rstrip('\n'))
+        filter_values = json.loads(self.in_out_server.readline().rstrip('\n'))['response']
         filter_values.insert(0, filter_name)
         obj['values'] = filter_values
         obj.set(filter_name)
-
 
     def tab1_apply_filters(self):
         command = {'command': 'data',
@@ -184,9 +184,19 @@ class Window(Frame):
         [self.tab1_ratings.delete(record) for record in self.tab1_ratings.get_children()]
         print(data)
         # for rating in data:
-        [self.tab1_ratings.insert('', index='end', text=rating['brand'],
-                                  values=(rating['country'], rating['variety'], rating['rating'])) for rating in data]
+        [self.tab1_ratings.insert('', index='end',
+                                  values=(rt[1], rt[4], rt[2], rt[5])) for rt in data]
 
+    # def tab1_table_sort(self, tv, col, reverse):
+    #     ls = [(tv.set(k, col), k) for k in tv.get_children('')]
+    #     ls.sort(reverse=reverse)
+    #
+    #     # rearrange items in sorted positions
+    #     for index, (val, k) in enumerate(ls):
+    #         tv.move(k, '', index)
+    #
+    #     # reverse sort next time
+    #     tv.heading(col, command=lambda: self.tab1_table_sort(tv, col, not reverse))
 
 root = Tk()
 app = Window(root)

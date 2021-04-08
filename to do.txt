@@ -1,0 +1,7 @@
+- gui.py
+    - tab1
+        - sticky content
+        - column sort
+        - filter alignment
+    - tab2
+        - x-axis labels

@@ -30,7 +30,7 @@ class ClientHandler(threading.Thread):
             if command['command'] == "data":
                 if command['params']['data'] == "all":
                     filters = command['params']['filters']
-                    msg_out = self.repository.get_filtered_ratings(filters)
+                    msg_out = iter(self.repository.get_filtered_ratings(filters))
                     self.print_bericht_gui_server(f"sending data with filters: {filters}")
 
                 elif command['params']['data'] == "brand":
@@ -40,6 +40,7 @@ class ClientHandler(threading.Thread):
                 elif command['params']['data'] == "country":
                     msg_out = self.repository.get_countries()
                     self.print_bericht_gui_server(f"sending all countries")
+            msg_out = {'response': msg_out}
             msg_out = json.dumps(msg_out)
             self.in_out_clh.write(msg_out + "\n")
             self.in_out_clh.flush()
