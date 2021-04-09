@@ -6,3 +6,5 @@
         - data request with filters in 1 function with par(brand, country, min_rating, output_obj)
     - tab2
         - x-axis labels
+- RatingRepository.py
+    - simplify get_mean_brand_rating with listcomprehensions

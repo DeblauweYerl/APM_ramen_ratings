@@ -40,29 +40,35 @@ class RatingRepository:
 
     def get_mean_brand_rating(self):
         brands = self.get_brands()
-        filters = {'filters':
-                       { 'brand': 'brand',
-                         'country': 'country',
-                         'min_rating': 0
-                       }}
+        filters = {'brand': 'brand',
+                   'country': 'country',
+                   'min_rating': 0
+                   }
         avg_ratings = {}
         for brand in brands:
-            filters['filters']['brand'] = brand
+            filters['brand'] = brand
             ratings = self.get_filtered_ratings(filters)
-            sumratings = 0
-            sumratings = [sumratings + rt[5] for rt in ratings]
-            avg_ratings[brand] = round(np.mean(sumratings), 2)
+            sum_ratings = 0
+            total_ratings = 0
+            sum_ratings = [sum_ratings + float(rt[5]) for rt in ratings]
+            total_ratings = [total_ratings + 1 for rt in ratings]
+            avg_ratings[brand] = {
+                'avg': round(np.mean(sum_ratings), 2),
+                'total': len(total_ratings)
+            }
+
         return avg_ratings
 
         # kaka = [rt for rt in self.get_filtered_ratings({'filters': { 'brand': [br for br in self.get_brands()]), 'country': 'country', 'min_rating': 0}}]
-        print(kaka)
+        # print(kaka)
         # return round(statistics.mean([float(rt.rating) for rt in self.ratings if rt[1] == brand and rt[4] == country]), 2)
 
     def search_ratings(self, search):
         return [rt for rt in self.ratings if search.lower() in rt[2].lower()]
 
+
 ratings = RatingRepository()
-ratings.get_mean_brand_rating()
+print(ratings.get_mean_brand_rating())
 # print(ratings.get_brands())
 # print(ratings.get_countries())
 # print([rt[5] for rt in ratings.get_filtered_ratings({'brand': 'Nissin', 'country': 'Japan', 'min_rating': 3.75})])
