@@ -43,13 +43,12 @@ class Window(Frame):
         tab_control.add(tab1, text="all ratings")
         tab_control.add(tab2, text="popularity graph")
         tab_control.add(tab3, text="brand stats")
-        tab_control.add(tab4, text="kaka")
+        tab_control.add(tab4, text="compare brands/countries")
         tab_control.add(tab5, text="search ramen")
 
         # tab1: all ratings
 
         # filters
-        self.tab1_select_brand = ttk.Combobox(tab1, height=25)
         self.tab1_select_brand = ttk.Combobox(tab1, height=25)
         self.tab1_select_brand.grid(column=0, row=0, padx=(2, 10), pady=5, sticky=E + W)
 
@@ -117,6 +116,24 @@ class Window(Frame):
         self.tab3_brands.column('#2', stretch=YES)
         self.tab3_brands.column('#3', stretch=YES)
 
+        # tab4: compare brands/countries
+
+        #parameters
+        self.tab4_radio_value = StringVar(tab4, "brand")
+        tab4_radio_brands = Radiobutton(tab4, text='brand', variable=self.tab4_radio_value, value='brand',
+                                        indicator=0, width=20, command=self.tab4_load_selects)
+        tab4_radio_countries = Radiobutton(tab4, text='country', variable=self.tab4_radio_value, value='country',
+                                           indicator=0, width=20, command=self.tab4_load_selects)
+        tab4_radio_brands.grid(row=0, column=1, padx=(10, 0), pady=10)
+        tab4_radio_countries.grid(row=0, column=2, padx=(0, 10), pady=10)
+        tab4_radio_brands.select()
+
+        self.tab4_compare1_select = ttk.Combobox(tab4, height=25)
+        self.tab4_compare1_select.grid(row=1, column=0, padx=10, pady=10)
+
+        self.tab4_compare2_select = ttk.Combobox(tab4, height=25)
+        self.tab4_compare2_select.grid(row=1, column=3, padx=10, pady=10)
+
         # tab5: search ramen
         self.tab5_searchbar = Entry(tab5)
         self.tab5_searchbar.grid(column=0, columnspan=3, padx=10, pady=20, sticky=E + W)
@@ -157,18 +174,11 @@ class Window(Frame):
             self.in_out_server = self.s.makefile(mode='rw')
             logging.info("Connection with server successful.")
 
-            # tab1
-            self.load_filter('brand', self.tab1_select_brand)
-            self.load_filter('country', self.tab1_select_country)
-            self.tab1_apply_filters()
-
-            # tab2
-            self.load_filter('brand', self.tab2_select_brand)
-            self.load_filter('country', self.tab2_select_country)
-            self.tab2_load_plot()
-
-            # tab3
+            # initialize tabs
+            self.init_tab1()
+            self.init_tab2()
             self.tab3_load_treeview()
+            self.init_tab4()
 
         except Exception as ex:
             logging.error(f"Error: {ex}")
@@ -201,6 +211,11 @@ class Window(Frame):
         [treeview_obj.insert('', index='end', values=(rt[1], rt[4], rt[2], rt[5])) for rt in data]
 
     ### tab1 ###
+    def init_tab1(self):
+        self.load_filter('brand', self.tab1_select_brand)
+        self.load_filter('country', self.tab1_select_country)
+        self.tab1_apply_filters()
+
     def tab1_apply_filters(self):
         command = {'command': 'data',
                    'params': {
@@ -231,6 +246,11 @@ class Window(Frame):
     #     tv.heading(col, command=lambda: self.tab1_table_sort(tv, col, not reverse))
 
     ### tab2 ###
+    def init_tab2(self):
+        self.load_filter('brand', self.tab2_select_brand)
+        self.load_filter('country', self.tab2_select_country)
+        self.tab2_load_plot()
+
     def tab2_load_plot(self):
         command = {'command': 'data',
                    'params': {
@@ -250,7 +270,7 @@ class Window(Frame):
         fig = plt.figure(figsize=(7, 3), facecolor='lightgrey', edgecolor='grey')
 
         plt.hist(rating_scores, bins=21)
-        plt.xticks(np.arange(6), [0,1,2,3,4,5])
+        plt.xticks(np.arange(6), [0, 1, 2, 3, 4, 5])
 
         canvas = FigureCanvasTkAgg(fig, self.tab2)
         plot_widget = canvas.get_tk_widget()
@@ -268,6 +288,39 @@ class Window(Frame):
         [self.tab3_brands.delete(record) for record in self.tab3_brands.get_children()]
         [self.tab3_brands.insert('', index='end', values=(brand, brand_stats[brand]['avg'], brand_stats[brand]['total'])) for brand in brand_stats]
 
+    ### tab4 ###
+    def init_tab4(self):
+        self.tab4_load_selects()
+
+    def tab4_load_selects(self):
+        self.load_filter(self.tab4_radio_value.get(), self.tab4_compare1_select)
+        self.load_filter(self.tab4_radio_value.get(), self.tab4_compare2_select)
+
+    def tab5_load_plots(self):
+        command = {'command': 'data',
+                   'params': {
+                       'data': 'all',
+                       'filters': {
+                           'brand': self.tab2_select_brand.get(),
+                           'country': self.tab2_select_country.get(),
+                           'min_rating': 0
+                       }
+                   }}
+
+        self.in_out_server.write(json.dumps(command) + "\n")
+        self.in_out_server.flush()
+        ratings = jsonpickle.decode(self.in_out_server.readline().rstrip('\n'))
+        rating_scores = sorted([float(rt[5]) for rt in ratings])
+
+        fig = plt.figure(figsize=(7, 3), facecolor='lightgrey', edgecolor='grey')
+
+        plt.hist(rating_scores, bins=21)
+        plt.xticks(np.arange(6), [0, 1, 2, 3, 4, 5])
+
+        canvas = FigureCanvasTkAgg(fig, self.tab2)
+        plot_widget = canvas.get_tk_widget()
+        plot_widget.grid(row=2, column=0, columnspan=7, padx=5, pady=5)
+
     ### tab5 ###
     def tab5_execute_search(self):
         command = {'command': 'data',
@@ -282,7 +335,6 @@ class Window(Frame):
             self.load_treeview_ratings(ratings, self.tab5_ratings)
         except Exception as ex:
             print(ex)
-
 
 
 root = Tk()
