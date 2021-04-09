@@ -49,10 +49,11 @@ class Window(Frame):
         # tab1: all ratings
 
         # filters
-        self.tab1_select_brand = ttk.Combobox(tab1)
+        self.tab1_select_brand = ttk.Combobox(tab1, height=25)
+        self.tab1_select_brand = ttk.Combobox(tab1, height=25)
         self.tab1_select_brand.grid(column=0, row=0, padx=(2, 10), pady=5, sticky=E + W)
 
-        self.tab1_select_country = ttk.Combobox(tab1)
+        self.tab1_select_country = ttk.Combobox(tab1, height=25)
         self.tab1_select_country.grid(column=1, row=0, padx=(2, 10), pady=5, sticky=E + W)
 
         ttk.Label(tab1, text="min. rating:").grid(column=2, row=0, pady=5, sticky=E)
@@ -87,10 +88,10 @@ class Window(Frame):
         self.tab1_ratings.grid(row=3, columnspan=4, sticky=N + S + E + W)
 
         # tab2: popularity graph
-        self.tab2_select_brand = ttk.Combobox(tab2)
+        self.tab2_select_brand = ttk.Combobox(tab2, height=25)
         self.tab2_select_brand.grid(column=0, row=0, padx=10, pady=5, sticky=E + W)
 
-        self.tab2_select_country = ttk.Combobox(tab2)
+        self.tab2_select_country = ttk.Combobox(tab2, height=25)
         self.tab2_select_country.grid(column=1, row=0, padx=10, pady=5, sticky=E + W)
 
         self.tab2_btn_apply_filters = Button(tab2, text="Apply filters", command=self.tab2_load_plot)
@@ -165,6 +166,9 @@ class Window(Frame):
             self.load_filter('brand', self.tab2_select_brand)
             self.load_filter('country', self.tab2_select_country)
             self.tab2_load_plot()
+
+            # tab3
+            self.tab3_load_treeview()
 
         except Exception as ex:
             logging.error(f"Error: {ex}")
@@ -253,9 +257,16 @@ class Window(Frame):
         plot_widget.grid(row=2, column=0, columnspan=7, padx=5, pady=5)
 
     ### tab3 ###
-    def load_treeview_brand_stats(self, data, treeview_obj):
-        [treeview_obj.delete(record) for record in treeview_obj.get_children()]
-        [treeview_obj.insert('', index='end', values=(rt[1], rt[4], rt[2], rt[5])) for rt in data]
+    def tab3_load_treeview(self):
+        command = {'command': 'data',
+                   'params': {
+                       'data': 'brand_stats'
+                   }}
+        self.in_out_server.write(json.dumps(command) + "\n")
+        self.in_out_server.flush()
+        brand_stats = jsonpickle.decode(self.in_out_server.readline().rstrip('\n'))
+        [self.tab3_brands.delete(record) for record in self.tab3_brands.get_children()]
+        [self.tab3_brands.insert('', index='end', values=(brand, brand_stats[brand]['avg'], brand_stats[brand]['total'])) for brand in brand_stats]
 
     ### tab5 ###
     def tab5_execute_search(self):

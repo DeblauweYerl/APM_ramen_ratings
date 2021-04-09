@@ -41,6 +41,10 @@ class ClientHandler(threading.Thread):
                     msg_out = self.repository.get_countries()
                     self.print_bericht_gui_server(f"sending all countries")
 
+                elif command['params']['data'] == "brand_stats":
+                    msg_out = self.repository.get_mean_brand_rating()
+                    self.print_bericht_gui_server(f"sending all brand statistics")
+
                 elif command['params']['data'] == "search":
                     search = command['params']['search']
                     msg_out = self.repository.search_ratings(search)
