@@ -28,7 +28,8 @@ class Window(Frame):
         # configure tabs
         tab_control = ttk.Notebook(self)
 
-        tab1 = ttk.Frame(tab_control)
+        tab1 = ttk.Frame(tab_control, style='TEntry')
+        tab1.__init__(tab_control)
         tab2 = ttk.Frame(tab_control)
         tab3 = ttk.Frame(tab_control)
         tab4 = ttk.Frame(tab_control)
@@ -40,6 +41,9 @@ class Window(Frame):
         tab_control.pack(fill=BOTH, expand=1)
         tab1.pack(fill=BOTH, expand=1)
         tab2.pack(fill=BOTH, expand=1)
+        tab3.pack(fill=BOTH, expand=1)
+        tab4.pack(fill=BOTH, expand=1)
+        tab5.pack(fill=BOTH, expand=1)
 
         tab_control.add(tab1, text="all ratings")
         tab_control.add(tab2, text="popularity graph")
@@ -80,10 +84,10 @@ class Window(Frame):
         self.tab1_ratings.heading('#3', text='variety')
         self.tab1_ratings.heading('#4', text='rating')
 
-        self.tab1_ratings.column('#1', stretch=YES)
-        self.tab1_ratings.column('#2', stretch=YES)
-        self.tab1_ratings.column('#3', stretch=YES)
-        self.tab1_ratings.column('#4', stretch=YES)
+        self.tab1_ratings.column('#1', width=150, stretch=YES)
+        self.tab1_ratings.column('#2', width=120, stretch=YES)
+        self.tab1_ratings.column('#3', width=450, stretch=YES)
+        self.tab1_ratings.column('#4', width=60, stretch=YES)
 
         self.tab1_ratings.grid(row=3, columnspan=4, sticky=N + S + E + W)
 
@@ -159,10 +163,10 @@ class Window(Frame):
         self.tab5_ratings.heading('#3', text='variety')
         self.tab5_ratings.heading('#4', text='rating')
 
-        self.tab5_ratings.column('#1', stretch=YES)
-        self.tab5_ratings.column('#2', stretch=YES)
-        self.tab5_ratings.column('#3', stretch=YES)
-        self.tab5_ratings.column('#4', stretch=YES)
+        self.tab5_ratings.column('#1', width=150, stretch=YES)
+        self.tab5_ratings.column('#2', width=120, stretch=YES)
+        self.tab5_ratings.column('#3', width=450, stretch=YES)
+        self.tab5_ratings.column('#4', width=60, stretch=YES)
 
     ### server ###
     def server_connect(self):
@@ -311,7 +315,7 @@ class Window(Frame):
                        }
                    }}
 
-        fig, (ax1, ax2) = plt.subplots(1, 2)
+        fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8,4))
         rating_scores = []
 
         for selection in [self.tab4_compare1_select.get(), self.tab4_compare2_select.get()]:
@@ -325,8 +329,13 @@ class Window(Frame):
             ratings = jsonpickle.decode(self.in_out_server.readline().rstrip('\n'))
             rating_scores.append(sorted([float(rt[5]) for rt in ratings]))
 
+        ax1.set_title(self.tab4_compare1_select.get())
         ax1.boxplot(rating_scores[0])
+        ax2.set_title(self.tab4_compare2_select.get())
         ax2.boxplot(rating_scores[1])
+        for ax in [ax1, ax2]:
+            ax.set_ylim([-0.5,5.5])
+            ax.set_xticks([])
 
         # fig = plt.figure(figsize=(7, 3), facecolor='lightgrey', edgecolor='grey')
         #
