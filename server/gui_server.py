@@ -97,5 +97,6 @@ class ServerWindow(Frame):
             elif message[1] == '/disconnect':
                 self.disconnect_client(message[2])
             self.log_lstnumbers.insert(END, message)
+            self.log_lstnumbers.yview(END)
             self.messages_queue.task_done()
             message = self.messages_queue.get().split(' ')
