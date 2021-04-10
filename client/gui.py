@@ -35,6 +35,7 @@ class Window(Frame):
         tab5 = ttk.Frame(tab_control)
 
         self.tab2 = tab2
+        self.tab4 = tab4
 
         tab_control.pack(fill=BOTH, expand=1)
         tab1.pack(fill=BOTH, expand=1)
@@ -130,6 +131,8 @@ class Window(Frame):
 
         self.tab4_compare1_select = ttk.Combobox(tab4, height=25)
         self.tab4_compare1_select.grid(row=1, column=0, padx=10, pady=10)
+
+        Button(tab4, text='compare', command=self.tab4_load_plots).grid(row=1, column=1, columnspan=2, padx=10, pady=10)
 
         self.tab4_compare2_select = ttk.Combobox(tab4, height=25)
         self.tab4_compare2_select.grid(row=1, column=3, padx=10, pady=10)
@@ -291,35 +294,48 @@ class Window(Frame):
     ### tab4 ###
     def init_tab4(self):
         self.tab4_load_selects()
+        self.tab4_load_plots()
 
     def tab4_load_selects(self):
         self.load_filter(self.tab4_radio_value.get(), self.tab4_compare1_select)
         self.load_filter(self.tab4_radio_value.get(), self.tab4_compare2_select)
 
-    def tab5_load_plots(self):
+    def tab4_load_plots(self):
         command = {'command': 'data',
                    'params': {
                        'data': 'all',
                        'filters': {
-                           'brand': self.tab2_select_brand.get(),
-                           'country': self.tab2_select_country.get(),
+                           'brand': 'brand',
+                           'country': 'country',
                            'min_rating': 0
                        }
                    }}
 
-        self.in_out_server.write(json.dumps(command) + "\n")
-        self.in_out_server.flush()
-        ratings = jsonpickle.decode(self.in_out_server.readline().rstrip('\n'))
-        rating_scores = sorted([float(rt[5]) for rt in ratings])
+        fig, (ax1, ax2) = plt.subplots(1, 2)
+        rating_scores = []
 
-        fig = plt.figure(figsize=(7, 3), facecolor='lightgrey', edgecolor='grey')
+        for selection in [self.tab4_compare1_select.get(), self.tab4_compare2_select.get()]:
+            if self.tab4_radio_value.get() == 'brand':
+                command['params']['filters']['brand'] = selection
+            else:
+                command['params']['filters']['country'] = selection
 
-        plt.hist(rating_scores, bins=21)
-        plt.xticks(np.arange(6), [0, 1, 2, 3, 4, 5])
+            self.in_out_server.write(json.dumps(command) + "\n")
+            self.in_out_server.flush()
+            ratings = jsonpickle.decode(self.in_out_server.readline().rstrip('\n'))
+            rating_scores.append(sorted([float(rt[5]) for rt in ratings]))
 
-        canvas = FigureCanvasTkAgg(fig, self.tab2)
+        ax1.boxplot(rating_scores[0])
+        ax2.boxplot(rating_scores[1])
+
+        # fig = plt.figure(figsize=(7, 3), facecolor='lightgrey', edgecolor='grey')
+        #
+        # plt.hist(rating_scores, bins=21)
+        # plt.xticks(np.arange(6), [0, 1, 2, 3, 4, 5])
+
+        canvas = FigureCanvasTkAgg(fig, self.tab4)
         plot_widget = canvas.get_tk_widget()
-        plot_widget.grid(row=2, column=0, columnspan=7, padx=5, pady=5)
+        plot_widget.grid(row=2, column=0, columnspan=4, padx=5, pady=5)
 
     ### tab5 ###
     def tab5_execute_search(self):
