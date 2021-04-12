@@ -16,8 +16,8 @@ class Window(Frame):
     def __init__(self, master=None):
         Frame.__init__(self, master)
         self.master = master
-        self.init_window()
-        self.server_connect()
+        # self.init_window()
+        # self.server_connect()
         self.master.protocol("WM_DELETE_WINDOW", self.server_disconnect)
 
     def init_window(self):
@@ -57,26 +57,26 @@ class Window(Frame):
 
         # filters
         self.tab1_select_brand = ttk.Combobox(tab1, height=25, state='readonly')
-        self.tab1_select_brand.grid(row=0, column=0, padx=10, pady=(10,0), sticky=E + W)
+        self.tab1_select_brand.grid(row=0, column=0, padx=10, pady=(10, 0), sticky=E + W)
 
         self.tab1_select_country = ttk.Combobox(tab1, height=25, state='readonly')
-        self.tab1_select_country.grid(row=0, column=1, padx=(0, 10), pady=(10,0), sticky=E + W)
+        self.tab1_select_country.grid(row=0, column=1, padx=(0, 10), pady=(10, 0), sticky=E + W)
 
-        ttk.Label(tab1, text="min. rating:").grid(row=0, column=2, padx=(20,0), pady=(10,0), sticky=E)
+        ttk.Label(tab1, text="min. rating:").grid(row=0, column=2, padx=(20, 0), pady=(10, 0), sticky=E)
         self.tab1_min_rating = Scale(tab1, from_=0, to=5, tickinterval=5, orient=HORIZONTAL, length=150)
-        self.tab1_min_rating.grid(row=0, column=3, padx=5, pady=(10,0), sticky=E + W)
+        self.tab1_min_rating.grid(row=0, column=3, padx=5, pady=(10, 0), sticky=E + W)
 
         tab1_btn_apply_filters = Button(tab1, text="Apply filters", command=self.tab1_apply_filters)
-        tab1_btn_apply_filters.grid(row=1, column=0, padx=10, pady=(0,40), sticky=W)
+        tab1_btn_apply_filters.grid(row=1, column=0, padx=10, pady=(0, 40), sticky=W)
 
         # data
         columns_ratings = ('brand', 'country', 'variety', 'rating')
         self.tab1_ratings = ttk.Treeview(tab1, columns=columns_ratings, show='headings')
-        self.tab1_ratings.grid(row=2, column=0, columnspan=5, sticky=N+S+E+W)
+        self.tab1_ratings.grid(row=2, column=0, columnspan=5, sticky=N + S + E + W)
         tab1_ratings_scrollbar = Scrollbar(tab1, orient=VERTICAL)
         self.tab1_ratings.configure(yscrollcommand=tab1_ratings_scrollbar.set)
         tab1_ratings_scrollbar.config(command=self.tab1_ratings.yview)
-        tab1_ratings_scrollbar.grid(row=2, column=5, sticky=N+S+W)
+        tab1_ratings_scrollbar.grid(row=2, column=5, sticky=N + S + W)
 
         # for col in columns_ratings:
         #     self.tab1_ratings.heading(col, text=col, command=lambda: self.tab1_table_sort(self.tab1_ratings, col, False))
@@ -99,13 +99,13 @@ class Window(Frame):
 
         # filters
         self.tab2_select_brand = ttk.Combobox(tab2, height=25, state='readonly')
-        self.tab2_select_brand.grid(column=0, row=0, padx=10, pady=(20,5), sticky=E + W)
+        self.tab2_select_brand.grid(column=0, row=0, padx=10, pady=(20, 5), sticky=E + W)
 
         self.tab2_select_country = ttk.Combobox(tab2, height=25, state='readonly')
-        self.tab2_select_country.grid(column=1, row=0, padx=10, pady=(20,5), sticky=E + W)
+        self.tab2_select_country.grid(column=1, row=0, padx=10, pady=(20, 5), sticky=E + W)
 
         self.tab2_btn_apply_filters = Button(tab2, text="Apply filters", command=self.tab2_load_plot)
-        self.tab2_btn_apply_filters.grid(column=0, row=1, padx=10, pady=(10,40), sticky=W)
+        self.tab2_btn_apply_filters.grid(column=0, row=1, padx=10, pady=(10, 40), sticky=W)
 
         # tab3: brand stats
 
@@ -116,11 +116,11 @@ class Window(Frame):
         # table
         columns_brand_stats = ('brand', 'average rating', 'total ratings')
         self.tab3_brands = ttk.Treeview(tab3, columns=columns_brand_stats, show='headings')
-        self.tab3_brands.grid(padx=(0), pady=(10,0), sticky=N + S + E + W)
+        self.tab3_brands.grid(padx=(0), pady=(10, 0), sticky=N + S + E + W)
         tab3_brands_scrollbar = Scrollbar(tab3, orient=VERTICAL)
         self.tab3_brands.configure(yscrollcommand=tab3_brands_scrollbar.set)
         tab3_brands_scrollbar.config(command=self.tab3_brands.yview)
-        tab3_brands_scrollbar.grid(row=0, column=1, padx=(0), pady=(0,10), sticky=N + S + W)
+        tab3_brands_scrollbar.grid(row=0, column=1, padx=(0), pady=(0, 10), sticky=N + S + W)
 
         # for col in columns_brand_stats:
         #     self.tab3_brands.heading(col, text=col, command=lambda: self.tab3_table_sort(self.tab3_brands, col, False))
@@ -146,18 +146,18 @@ class Window(Frame):
                                         indicator=0, width=20, command=self.tab4_load_selects)
         tab4_radio_countries = Radiobutton(tab4, text='country', variable=self.tab4_radio_value, value='country',
                                            indicator=0, width=20, command=self.tab4_load_selects)
-        tab4_radio_brands.grid(row=0, column=1, pady=(20,5))
-        tab4_radio_countries.grid(row=0, column=2, pady=(20,5))
+        tab4_radio_brands.grid(row=0, column=1, pady=(20, 5))
+        tab4_radio_countries.grid(row=0, column=2, pady=(20, 5))
         tab4_radio_brands.select()
 
         self.tab4_compare1_select = ttk.Combobox(tab4, height=25, state='readonly')
-        self.tab4_compare1_select.grid(row=1, column=1, padx=10, pady=5, sticky=E+W)
+        self.tab4_compare1_select.grid(row=1, column=1, padx=10, pady=5, sticky=E + W)
 
-        Button(tab4, text='Compare', command=self.tab4_load_plots, width=14)\
-            .grid(row=2, column=1, columnspan=2, padx=10, pady=(5,40), sticky=E+W)
+        Button(tab4, text='Compare', command=self.tab4_load_plots, width=14) \
+            .grid(row=2, column=1, columnspan=2, padx=10, pady=(5, 40), sticky=E + W)
 
         self.tab4_compare2_select = ttk.Combobox(tab4, height=25, state='readonly')
-        self.tab4_compare2_select.grid(row=1, column=2, padx=10, pady=5, sticky=E+W)
+        self.tab4_compare2_select.grid(row=1, column=2, padx=10, pady=5, sticky=E + W)
 
         # tab5: search ramen
 
@@ -167,9 +167,9 @@ class Window(Frame):
 
         # searchbar
         self.tab5_searchbar = Entry(tab5, width=50)
-        self.tab5_searchbar.grid(column=0, columnspan=2, padx=10, pady=(20,40), sticky=E + W)
+        self.tab5_searchbar.grid(column=0, columnspan=2, padx=10, pady=(20, 40), sticky=E + W)
         tab5_btn_search = Button(tab5, text="Search", width=10, command=self.tab5_execute_search)
-        tab5_btn_search.grid(row=0, column=2, padx=10, pady=(20,40), sticky=E + W)
+        tab5_btn_search.grid(row=0, column=2, padx=10, pady=(20, 40), sticky=E + W)
 
         # data
         self.tab5_ratings = ttk.Treeview(tab5, columns=columns_ratings, show='headings')
@@ -177,7 +177,7 @@ class Window(Frame):
         tab5_ratings_scrollbar = Scrollbar(tab5, orient=VERTICAL)
         self.tab5_ratings.configure(yscrollcommand=tab5_ratings_scrollbar.set)
         tab5_ratings_scrollbar.config(command=self.tab5_ratings.yview)
-        tab5_ratings_scrollbar.grid(row=2, column=4, pady=(0,10), sticky=N + S + W)
+        tab5_ratings_scrollbar.grid(row=2, column=4, pady=(0, 10), sticky=N + S + W)
 
         # for col in columns_ratings:
         #     self.tab5_ratings.heading(col, text=col, command=lambda: self.tab5_table_sort(self.tab5_ratings, col, False))
@@ -205,11 +205,7 @@ class Window(Frame):
             self.in_out_server = self.s.makefile(mode='rw')
             logging.info("Connection with server successful.")
 
-            # initialize tabs
-            self.init_tab1()
-            self.init_tab2()
-            self.tab3_load_treeview()
-            self.init_tab4()
+            self.init_tabs()
 
         except Exception as ex:
             logging.error(f"Error: {ex}")
@@ -226,6 +222,12 @@ class Window(Frame):
             logging.error("Foutmelding:close connection with server failed")
 
     ### general ###
+    def init_tabs(self):
+        self.init_tab1()
+        self.init_tab2()
+        self.tab3_load_treeview()
+        self.init_tab4()
+
     def load_filter(self, filter_name, obj):
         command = {'command': 'data',
                    'params': {
@@ -306,7 +308,7 @@ class Window(Frame):
 
         canvas = FigureCanvasTkAgg(fig, self.tab2)
         plot_widget = canvas.get_tk_widget()
-        plot_widget.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky=N+S+E+W)
+        plot_widget.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky=N + S + E + W)
 
     ### tab3 ###
     def tab3_load_treeview(self):
@@ -318,7 +320,9 @@ class Window(Frame):
         self.in_out_server.flush()
         brand_stats = jsonpickle.decode(self.in_out_server.readline().rstrip('\n'))
         [self.tab3_brands.delete(record) for record in self.tab3_brands.get_children()]
-        [self.tab3_brands.insert('', index='end', values=(brand, brand_stats[brand]['avg'], brand_stats[brand]['total'])) for brand in brand_stats]
+        [self.tab3_brands.insert('', index='end',
+                                 values=(brand, brand_stats[brand]['avg'], brand_stats[brand]['total'])) for brand in
+         brand_stats]
 
     ### tab4 ###
     def init_tab4(self):
@@ -359,7 +363,7 @@ class Window(Frame):
         ax2.set_title(self.tab4_compare2_select.get())
         ax2.boxplot(rating_scores[1])
         for ax in [ax1, ax2]:
-            ax.set_ylim([-0.5,5.5])
+            ax.set_ylim([-0.5, 5.5])
             ax.set_xticks([])
 
         # fig = plt.figure(figsize=(7, 3), facecolor='lightgrey', edgecolor='grey')
@@ -369,7 +373,7 @@ class Window(Frame):
 
         canvas = FigureCanvasTkAgg(fig, self.tab4)
         plot_widget = canvas.get_tk_widget()
-        plot_widget.grid(row=3, column=0, columnspan=6, padx=5, pady=5, sticky=N+S)
+        plot_widget.grid(row=3, column=0, columnspan=6, padx=5, pady=5, sticky=N + S)
 
     ### tab5 ###
     def tab5_execute_search(self):
@@ -386,7 +390,31 @@ class Window(Frame):
         except Exception as ex:
             print(ex)
 
+# root = Tk()
+# app = Window(root)
+# root.mainloop()
+
+
+
+
+### login ###
+class Login(Frame):
+    def init_login(self, master=None):
+        Frame.__init__(self, master)
+        self.master.title('login')
+
+        self.pack(fill=BOTH, expand=1)
+
+        Label(self, text='nickname')
+        self.login_nickname = Entry(self)
+
+        Label(self, text='name')
+        self.login_name = Entry(self)
+
+        Label(self, text='email')
+        self.login_email = Entry(self)
+
 
 root = Tk()
-app = Window(root)
+login = Login(root)
 root.mainloop()
