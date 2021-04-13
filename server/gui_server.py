@@ -2,10 +2,12 @@ import logging
 import socket
 from queue import Queue
 from threading import Thread
+import numpy as np
 
 from tkinter import *
 
 from APM_ramen_ratings.server.server import RamenServer
+from APM_ramen_ratings.data.AccountRepository import AccountRepository
 
 
 class ServerWindow(Frame):
@@ -16,6 +18,7 @@ class ServerWindow(Frame):
         self.server = None
         self.thread_listener_queue=None
         self.init_messages_queue()
+        self.account_repository = AccountRepository()
 
 
     # Creation of init_window
@@ -31,11 +34,12 @@ class ServerWindow(Frame):
         self.rowconfigure(3, weight=1)
 
         Label(self, text="Connected clients:").grid(row=0, column=0, columnspan=2)
-        self.cl_scrollbar = Scrollbar(self, orient=VERTICAL)
-        self.cl_lstclients = Listbox(self, yscrollcommand=self.cl_scrollbar.set)
-        self.cl_scrollbar.config(command=self.cl_lstclients.yview)
+        cl_scrollbar = Scrollbar(self, orient=VERTICAL)
+        self.cl_lstclients = Listbox(self, yscrollcommand=cl_scrollbar.set)
         self.cl_lstclients.grid(row=1, column=0, sticky=N+S+E+W)
-        self.cl_scrollbar.grid(row=1, column=1, sticky=N+S+W)
+        self.cl_lstclients.bind('<Double-1>', self.details_client)
+        cl_scrollbar.config(command=self.cl_lstclients.yview)
+        cl_scrollbar.grid(row=1, column=1, sticky=N+S+W)
 
         Label(self, text="Function popularity:").grid(row=2, column=0)
         self.pop_scrollbar = Scrollbar(self, orient=VERTICAL)
@@ -58,18 +62,43 @@ class ServerWindow(Frame):
         Grid.rowconfigure(self, 1, weight=1)
         Grid.columnconfigure(self, 0, weight=1)
 
+    ### UI interaction ###
+    def details_client(self, eventargs):
+        self.account_repository.update_accounts()
+        account = np.ndarray.flatten(self.account_repository.get_account(self.cl_lstclients.get(ACTIVE)))
+        window = Tk()
+        self.init_window_client_details(window, account)
+        window.mainloop()
 
+    def init_window_client_details(self, root, account):
+        root.title("client details")
+
+        Label(root, text='nickname:').grid(padx=5, pady=5, sticky=W)
+        Label(root, text=account[0]).grid(row=0, column=1, padx=5, pady=5, sticky=W)
+
+        Label(root, text='name:').grid(padx=5, pady=5, sticky=W)
+        Label(root, text=account[1]).grid(row=1, column=1, padx=5, pady=5, sticky=W)
+
+        Label(root, text='email:').grid(padx=5, pady=5, sticky=W)
+        Label(root, text=account[2]).grid(row=2, column=1, padx=5, pady=5, sticky=W)
+
+        Label(root, text='message to client:').grid(padx=5, pady=(20,5), sticky=W)
+        Entry(root, width=50).grid(columnspan=2, padx=5, pady=5, sticky=E+W)
+        Button(root, text='send message').grid(padx=5, pady=5, sticky=W)
+
+    def client_send_message(self):
+        pass
+
+    def remove_client(self, email):
+        index = self.cl_lstclients.get().index(email)
+        self.cl_lstclients.delete(index, index)
+
+    ### server activity ###
     def start_stop_server(self):
         if self.server is not None:
             self.__stop_server()
         else:
             self.__start_server()
-
-    def connect_client(self, client_id):
-        self.cl_lstclients.insert(END, client_id)
-
-    def disconnect_client(self, client_id):
-        print(self.cl_lstclients.get(0, END))
 
     def __start_server(self):
         self.server = RamenServer(socket.gethostname(), 9999, self.messages_queue, self)
@@ -84,6 +113,14 @@ class ServerWindow(Frame):
         logging.info("Server stopped")
         self.btn_text.set("Start server")
 
+    ### client connection ###
+    def connect_client(self, client_id):
+        self.cl_lstclients.insert(END, client_id)
+
+    def disconnect_client(self, client_id):
+        print(self.cl_lstclients.get(0, END))
+
+    ### message queue ###
     def init_messages_queue(self):
         self.messages_queue = Queue()
         self.thread_listener_queue = Thread(target=self.print_messsages_from_queue, name="Queue_listener_thread", daemon=True)
@@ -91,11 +128,11 @@ class ServerWindow(Frame):
 
     def print_messsages_from_queue(self):
         message = self.messages_queue.get().split(' ')
-        while message[0] != "/stop":
-            if message[1] == '/connect':
-                self.connect_client(message[2])
-            elif message[1] == '/disconnect':
-                self.disconnect_client(message[2])
+        while message[0] != "stop":
+            # if message[1] == '/connect':
+            #     self.connect_client(message[2])
+            # elif message[1] == '/disconnect':
+            #     self.disconnect_client(message[2])
             self.log_lstnumbers.insert(END, message)
             self.log_lstnumbers.yview(END)
             self.messages_queue.task_done()

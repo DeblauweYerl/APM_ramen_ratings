@@ -13,17 +13,13 @@ import socket
 import jsonpickle
 import json
 
-
 ### app ###
 class Window(Frame):
-    def __init__(self, nickname, name, email, master=None):
+    def __init__(self, master=None):
         Frame.__init__(self, master)
         self.master = master
-        self.nickname = nickname
-        self.name = name
-        self.email = email
         self.init_window()
-        self.server_connect(nickname, name, email)
+        self.server_connect()
         self.master.protocol("WM_DELETE_WINDOW", self.server_disconnect)
 
     def init_window(self):
@@ -199,7 +195,7 @@ class Window(Frame):
         self.tab5_ratings.column('#4', width=60, stretch=YES)
 
     ### server ###
-    def server_connect(self, nickname, name, email):
+    def server_connect(self):
         try:
             logging.info("Making connection with server...")
             # get local machine name
@@ -211,7 +207,6 @@ class Window(Frame):
             self.in_out_server = self.s.makefile(mode='rw')
             logging.info("Connection with server successful.")
 
-            self.save_login(nickname, name, email)
             self.init_tabs()
 
         except Exception as ex:
@@ -220,18 +215,17 @@ class Window(Frame):
 
     def server_disconnect(self):
         try:
-            if messagebox.askokcancel("Quit", "Do you want to quit?"):
-                logging.info("Close connection with server...")
-                self.in_out_server.write(json.dumps({'command': 'disconnect'}))
-                self.in_out_server.flush()
-                self.s.close()
-                self.master.destroy()
+            logging.info("Close connection with server...")
+            self.in_out_server.write("CLOSE\n")
+            self.in_out_server.flush()
+            self.s.close()
+            self.master.destroy()
         except Exception as ex:
             logging.error("Foutmelding:close connection with server failed")
 
     ### general ###
     def save_login(self, nickname, name, email):
-        command = {'command': 'log_in',
+        command = {'command': 'save_account',
                    'params': {
                        'nickname': nickname,
                        'name': name,
@@ -240,6 +234,8 @@ class Window(Frame):
         try:
             self.in_out_server.write(json.dumps(command) + "\n")
             self.in_out_server.flush()
+            ratings = jsonpickle.decode(self.in_out_server.readline().rstrip('\n'))
+            self.load_treeview_ratings(ratings, self.tab1_ratings)
         except Exception as ex:
             print(ex)
 
@@ -412,50 +408,8 @@ class Window(Frame):
             print(ex)
 
 
-### login ###
-class Login(Frame):
-    def __init__(self, master=None):
-        Frame.__init__(self, master)
-        self.master = master
-        self.init_window()
-        self.master.mainloop()
-
-    def init_window(self):
-        self.master.title('log in')
-        self.pack(fill=BOTH, expand=1)
-
-        Label(self, text='nickname').grid(padx=(10, 5), pady=(10, 5), sticky=W)
-        self.login_nickname = Entry(self, width=40)
-        self.login_nickname.grid(row=0, column=1, padx=(5, 10), pady=(10, 5), sticky=W)
-
-        Label(self, text='name').grid(padx=(10, 5), pady=5, sticky=W)
-        self.login_name = Entry(self, width=40)
-        self.login_name.grid(row=1, column=1, padx=(5, 10), pady=5, sticky=W)
-
-        Label(self, text='email').grid(padx=(10, 5), pady=(5, 10), sticky=W)
-        self.login_email = Entry(self, width=40)
-        self.login_email.grid(row=2, column=1, padx=(5, 10), pady=5, sticky=W)
-
-        Button(self, text='log in', command=self.log_in).grid(columnspan=2, padx=(5, 10), pady=(5, 10), sticky=E + W)
-
-    def log_in(self):
-        valid = 1
-        for field in [self.login_nickname.get(), self.login_name.get(), self.login_email.get()]:
-            if field == '':
-                valid = 0
-
-        if valid == 1:
-            root = Tk()
-            nickname = self.login_nickname.get()
-            name = self.login_name.get()
-            email = self.login_email.get()
-            app = Window(nickname, name, email, root)
-            root.mainloop()
-            self.master.destroy()
-        else:
-            messagebox.showinfo("Login - error", "Not all fields completed.")
-
 
 root = Tk()
-login = Login(root)
+# login = Login(root)
+app = Window(root)
 root.mainloop()

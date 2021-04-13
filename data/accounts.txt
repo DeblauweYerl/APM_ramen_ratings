@@ -1,0 +1,3 @@
+nickname,name,email
+Kjettle,Yerl Deblauwe,yerl.deblauwe@student.howest.be
+Beaver,Arne Vandendriessche,arne.vandendriessche@sgsintpaulus.eu

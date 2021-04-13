@@ -9,7 +9,7 @@ from APM_ramen_ratings.models.Rating import Rating
 
 
 def read_ratings():
-    ratings = pd.read_csv("../assets/ramen-ratings.csv")
+    ratings = pd.read_csv("../data/ramen-ratings.csv")
     ratings = ratings[ratings['Stars'] != 'Unrated']
     return ratings.values
 
