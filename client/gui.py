@@ -235,7 +235,8 @@ class Window(Frame):
                    'params': {
                        'nickname': nickname,
                        'name': name,
-                       'email': email
+                       'email': email,
+                       'function': 'log in'
                    }}
         try:
             self.in_out_server.write(json.dumps(command) + "\n")
@@ -249,10 +250,11 @@ class Window(Frame):
         self.tab3_load_treeview()
         self.init_tab4()
 
-    def load_filter(self, filter_name, obj):
+    def load_filter(self, filter_name, obj, function):
         command = {'command': 'data',
                    'params': {
-                       'data': filter_name
+                       'data': filter_name,
+                       'function': function
                    }}
         self.in_out_server.write(json.dumps(command) + "\n")
         self.in_out_server.flush()
@@ -267,8 +269,8 @@ class Window(Frame):
 
     ### tab1 ###
     def init_tab1(self):
-        self.load_filter('brand', self.tab1_select_brand)
-        self.load_filter('country', self.tab1_select_country)
+        self.load_filter('brand', self.tab1_select_brand, 'all ratings')
+        self.load_filter('country', self.tab1_select_country, 'all ratings')
         self.tab1_apply_filters()
 
     def tab1_apply_filters(self):
@@ -279,7 +281,8 @@ class Window(Frame):
                            'brand': self.tab1_select_brand.get(),
                            'country': self.tab1_select_country.get(),
                            'min_rating': self.tab1_min_rating.get()
-                       }
+                       },
+                       'function': 'all ratings'
                    }}
         try:
             self.in_out_server.write(json.dumps(command) + "\n")
@@ -289,21 +292,22 @@ class Window(Frame):
         except Exception as ex:
             print(ex)
 
-    # def tab1_table_sort(self, tv, col, reverse):
-    #     ls = [(tv.set(k, col), k) for k in tv.get_children('')]
-    #     ls.sort(reverse=reverse)
-    #
-    #     # rearrange items in sorted positions
-    #     for index, (val, k) in enumerate(ls):
-    #         tv.move(k, '', index)
-    #
-    #     # reverse sort next time
-    #     tv.heading(col, command=lambda: self.tab1_table_sort(tv, col, not reverse))
+    def tab1_table_sort(self, tv, col, reverse):
+        # ls = [(tv.set(k, col), k) for k in tv.get_children('')]
+        # ls.sort(reverse=reverse)
+        #
+        # # rearrange items in sorted positions
+        # for index, (val, k) in enumerate(ls):
+        #     tv.move(k, '', index)
+        #
+        # # reverse sort next time
+        # tv.heading(col, command=lambda: self.tab1_table_sort(tv, col, not reverse))
+        pass
 
     ### tab2 ###
     def init_tab2(self):
-        self.load_filter('brand', self.tab2_select_brand)
-        self.load_filter('country', self.tab2_select_country)
+        self.load_filter('brand', self.tab2_select_brand, 'popularity brand/country')
+        self.load_filter('country', self.tab2_select_country, 'popularity brand/country')
         self.tab2_load_plot()
 
     def tab2_load_plot(self):
@@ -314,7 +318,8 @@ class Window(Frame):
                            'brand': self.tab2_select_brand.get(),
                            'country': self.tab2_select_country.get(),
                            'min_rating': 0
-                       }
+                       },
+                       'function': 'popularity brand/country'
                    }}
 
         self.in_out_server.write(json.dumps(command) + "\n")
@@ -335,7 +340,8 @@ class Window(Frame):
     def tab3_load_treeview(self):
         command = {'command': 'data',
                    'params': {
-                       'data': 'brand_stats'
+                       'data': 'brand_stats',
+                       'function': 'brand stats'
                    }}
         self.in_out_server.write(json.dumps(command) + "\n")
         self.in_out_server.flush()
@@ -351,8 +357,8 @@ class Window(Frame):
         self.tab4_load_plots()
 
     def tab4_load_selects(self):
-        self.load_filter(self.tab4_radio_value.get(), self.tab4_compare1_select)
-        self.load_filter(self.tab4_radio_value.get(), self.tab4_compare2_select)
+        self.load_filter(self.tab4_radio_value.get(), self.tab4_compare1_select, 'compare brands/countries')
+        self.load_filter(self.tab4_radio_value.get(), self.tab4_compare2_select, 'compare brands/countries')
 
     def tab4_load_plots(self):
         command = {'command': 'data',
@@ -362,7 +368,8 @@ class Window(Frame):
                            'brand': 'brand',
                            'country': 'country',
                            'min_rating': 0
-                       }
+                       },
+                       'function': 'compare brands/countries'
                    }}
 
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(8, 4))
@@ -401,7 +408,8 @@ class Window(Frame):
         command = {'command': 'data',
                    'params': {
                        'data': 'search',
-                       'search': self.tab5_searchbar.get()
+                       'search': self.tab5_searchbar.get(),
+                       'function': 'search'
                    }}
         try:
             self.in_out_server.write(json.dumps(command) + "\n")
